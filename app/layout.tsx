@@ -40,6 +40,10 @@ export const metadata: Metadata = {
     follow: true,
   },
 
+  verification: {
+    google: "SEx3T7sQc9OUXruzVo2BKrGrXqaNhQF340gR0OyMe9c",
+  },
+
   openGraph: {
     title: "TEXAI | AI Automation Agency",
     description:
