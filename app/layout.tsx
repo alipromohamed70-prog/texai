@@ -76,9 +76,8 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-black text-white antialiased scroll-smooth">
         {children}
+        <GoogleAnalytics gaId="G-E2520Y40YP" />
       </body>
-
-      <GoogleAnalytics gaId="G-E2520Y40YP" />
     </html>
   );
 }
