@@ -13,7 +13,9 @@ export default function BookingForm() {
     notes: "",
   });
 
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success"
+  >("idle");
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -31,10 +33,11 @@ export default function BookingForm() {
   ) => {
     e.preventDefault();
 
-    setLoading(true);
+    if (status === "loading") return;
+
+    setStatus("loading");
 
     try {
-      // تم تعديل الرابط هنا ليكون متصلاً بدون مسافات نائية لتجنب مشاكل السيرفر
       const response = await fetch(
         "https://oussapro1.app.n8n.cloud/webhook/dental-booking",
         {
@@ -47,10 +50,8 @@ export default function BookingForm() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to send data to n8n");
+        throw new Error("Failed to send data");
       }
-
-      alert("Appointment request sent successfully!");
 
       setFormData({
         fullName: "",
@@ -61,17 +62,21 @@ export default function BookingForm() {
         time: "",
         notes: "",
       });
+
+      setStatus("success");
+
+      setTimeout(() => {
+        setStatus("idle");
+      }, 2000);
+
     } catch (error) {
       console.error(error);
-      alert("Something went wrong.");
-    } finally {
-      setLoading(false);
+      setStatus("idle");
     }
   };
 
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8">
-
       <h2 className="text-2xl font-bold text-gray-900 mb-6">
         Book Your Appointment
       </h2>
@@ -80,7 +85,6 @@ export default function BookingForm() {
         onSubmit={handleSubmit}
         className="space-y-5"
       >
-
         <div>
           <label className="block mb-2 font-medium text-gray-800">
             Full Name
@@ -193,14 +197,52 @@ export default function BookingForm() {
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-4 rounded-xl transition"
+          disabled={status === "loading"}
+          className={`w-full font-semibold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3
+            ${
+              status === "success"
+                ? "bg-green-600 text-white scale-105"
+                : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95"
+            }
+            ${
+              status === "loading"
+                ? "opacity-90 cursor-not-allowed"
+                : ""
+            }`}
         >
-          {loading ? "Booking..." : "Book Appointment"}
+          {status === "loading" ? (
+            <>
+              <svg
+                className="animate-spin h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+              Booking Appointment...
+            </>
+          ) : status === "success" ? (
+            <>
+              ✅ Appointment Booked
+            </>
+          ) : (
+            "Book Appointment"
+          )}
         </button>
-
       </form>
-
     </div>
   );
 }
